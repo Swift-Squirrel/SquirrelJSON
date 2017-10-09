@@ -1,0 +1,52 @@
+default_docker: &default_docker
+  docker:
+    - image: swiftdocker/swift
+
+version: 2.0
+jobs:
+  build_debug:
+    <<: *default_docker
+    steps:
+      - checkout
+      - run:
+          name: Build for debug
+          command: swift build
+
+  build_release:
+    <<: *default_docker
+    steps:
+      - checkout
+      - run:
+          name: Build for release
+          command: swift build -c release
+
+  test_parallel:
+    <<: *default_docker
+    steps:
+      - checkout
+      - run:
+          name: Run unit tests
+          command: swift test --parallel
+
+  test:
+    <<: *default_docker
+    steps:
+      - checkout
+      - run:
+          name: Run unit tests
+          command: swift test
+
+workflows:
+  version: 2
+  resolve_build_test:
+    jobs:
+      - build_debug:
+      - build_release:
+      - test:
+          requires:
+            - build_debug
+            - build_release
+      - test_parallel:
+          requires:
+            - build_debug
+            - build_release
