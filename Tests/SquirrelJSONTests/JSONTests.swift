@@ -8,6 +8,14 @@
 import XCTest
 @testable import SquirrelJSON
 
+class Person {
+    let a = "a"
+}
+
+class User: Person {
+    let login = "login"
+}
+
 class JSONTests: XCTestCase {
 
     private struct JSONS {
@@ -19,6 +27,22 @@ class JSONTests: XCTestCase {
                     \"price\":\"456.00\"},{\"title\":\"AdobeFlex\",\"author\":\"Johnson\",
                     \"year\":\"2010\",\"price\":\"566.00\"}]}}
                     """
+    }
+
+    func testInheritence() {
+        let user = User()
+        guard let keyValue = JSONCoding.encodeSerializeJSON(object: user) as? [String: Any] else {
+            XCTFail()
+            return
+        }
+        guard let json = JSON(dictionary: keyValue) else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertEqual("login", json["login"].string)
+        XCTAssertEqual("a", json["a"].string)
+
     }
 
     func testConstructors() {
@@ -254,6 +278,7 @@ class JSONTests: XCTestCase {
         ("testEq", testEq),
         ("testCodableSimple", testCodableSimple),
         ("testCodableOneSubstruct", testCodableOneSubstruct),
-        ("testCodableMedium", testCodableMedium)
+        ("testCodableMedium", testCodableMedium),
+        ("testInheritence", testInheritence)
     ]
 }

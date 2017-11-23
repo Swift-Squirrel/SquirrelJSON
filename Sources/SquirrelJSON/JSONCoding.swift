@@ -98,6 +98,24 @@ public struct JSONCoding {
     /// - Parameter object: object to encode
     /// - Returns: json representation or nil otherwise
     public static func encode<T>(object: T) -> Any? {
+        func getMirrorChildren(superClass: Mirror?, children: Mirror.Children) -> [String: Any]? {
+            var res: [String: Any] = [:]
+            if let supClass = superClass {
+                let children = supClass.children
+                if let sres = getMirrorChildren(superClass: supClass.superclassMirror, children: children) {
+                    for (key, value) in sres {
+                        res[key] = value
+                    }
+                }
+            }
+            for child in children {
+                if let key = child.label {
+                    res[key] = encodeValue(value: child.value)
+                }
+            }
+            return res
+        }
+
         var res: [String: Any] = [:]
         switch object {
         case is Int,
@@ -115,13 +133,14 @@ public struct JSONCoding {
             return dic.mapValues { return encode(object: $0) }
         default:
             let mirror = Mirror(reflecting: object)
+            let supMirror = mirror.superclassMirror
             let childrens = mirror.children
             if childrens.count == 1 && childrens.first!.label == "some" {
                 return encodeValue(value: childrens.first!.value)
             }
-            for child in childrens {
-                if let key = child.label {
-                    res[key] = encodeValue(value: child.value)
+            if let mres = getMirrorChildren(superClass: supMirror, children: childrens) {
+                for (key, value) in mres {
+                    res[key] = value
                 }
             }
         }
