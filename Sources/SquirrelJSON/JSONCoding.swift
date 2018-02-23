@@ -127,6 +127,8 @@ public struct JSONCoding {
             return object
         case let v as SquirrelJSONEncodable:
             return v.encodedValue
+        case let v as Date:
+            return v.timeIntervalSince1970.description
         case let arr as [Any]:
             return arr.flatMap { encode(object: $0) }
         case let dic as [String: Any]:
