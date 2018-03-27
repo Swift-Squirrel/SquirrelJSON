@@ -117,6 +117,14 @@ public extension JSON {
     public var stringValue: String {
         return string ?? ""
     }
+
+    /// Check if value is String
+    public var isString: Bool {
+        guard case .string = type else {
+            return false
+        }
+        return true
+    }
 }
 
 // MARK: - Dictionary
@@ -167,6 +175,14 @@ extension JSON {
             return value
         }
         return JSON(from: nil)!
+    }
+
+    /// Check if value is dictionary
+    public var isDictionary: Bool {
+        guard case .dictionary = type else {
+            return false
+        }
+        return true
     }
 }
 
@@ -224,6 +240,14 @@ public extension JSON {
         }
         return arr[index]
     }
+
+    /// Check if value is dictionary
+    public var isArray: Bool {
+        guard case .array = type else {
+            return false
+        }
+        return true
+    }
 }
 
 // MARK: - Int
@@ -255,6 +279,17 @@ extension JSON {
     public var intValue: Int {
         return int ?? 0
     }
+
+    /// Check if value is Int
+    public var isInt: Bool {
+        if case .int = type {
+            return true
+        }
+        if case .bool = type {
+            return true
+        }
+        return false
+    }
 }
 
 // MARK: - Double
@@ -276,6 +311,14 @@ extension JSON {
     /// Double (if nil return 0.0)
     public var doubleValue: Double {
         return double ?? 0.0
+    }
+
+    /// Check if value is Double
+    public var isDouble: Bool {
+        guard case .double = type else {
+            return false
+        }
+        return true
     }
 }
 
@@ -303,6 +346,18 @@ extension JSON {
     public var boolValue: Bool {
         return bool ?? false
     }
+
+    /// Check if value is Bool
+    public var isBool: Bool {
+        switch type {
+        case .bool:
+            return true
+        case .int(let intVal) where intVal == 0 || intVal == 1:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 // MARK: - Date
@@ -326,6 +381,53 @@ extension JSON {
     public var dateValue: Date {
         return date ?? Date()
     }
+
+    /// Check if value is Date
+    public var isDate: Bool {
+        guard case .date = type else {
+            return false
+        }
+        return true
+    }
+}
+
+
+// MARK: - Codable
+public extension JSON {
+    /// Constructs from encodable object
+    ///
+    /// - Parameter encodable: Encodable object
+    public init<T: Encodable>(_ encodable: T) throws {
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(encodable)
+        try self.init(json: data)
+    }
+
+    /// Tries to decode JSON to given object
+    ///
+    /// - Parameter type: Type of resulting object
+    /// - Returns: Object
+    /// - Throws: Encoding and decoding error
+    public func decode<T: Decodable>(to type: T.Type = T.self) throws -> T {
+        let data = try JSONEncoder().encode(self)
+        return try JSONDecoder().decode(T.self, from: data)
+    }
+
+    /// Decode data to JSON
+    ///
+    /// - Parameter data: All important data in JSON data format
+    /// - Returns: JSON or nil on error
+    public static func decode(from data: Data) -> JSON? {
+        let decoder = JSONDecoder()
+        return try? decoder.decode(self, from: data)
+    }
+
+    /// Encoded JSON to Data or nil on error
+    public var encode: Data? {
+        let encoder = JSONEncoder()
+        return try? encoder.encode(self)
+    }
+
 }
 
 // MARK: - Additive functions
@@ -357,21 +459,6 @@ public extension JSON {
         default:
             return false
         }
-    }
-
-    /// Decode data to JSON
-    ///
-    /// - Parameter data: All important data in JSON data format
-    /// - Returns: JSON or nil on error
-    public static func decode(from data: Data) -> JSON? {
-        let decoder = JSONDecoder()
-        return try? decoder.decode(self, from: data)
-    }
-
-    /// Encoded JSON to Data or nil on error
-    public var encode: Data? {
-        let encoder = JSONEncoder()
-        return try? encoder.encode(self)
     }
 
     /// Serialized to [String: Any] or [Any]

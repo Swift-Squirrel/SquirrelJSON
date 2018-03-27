@@ -4,6 +4,16 @@ default_docker: &default_docker
 
 version: 2.0
 jobs:
+  resolve:
+    <<: *default_docker
+    steps:
+      - checkout
+      - run:
+          name: Resolve
+          command: |
+           swift package resolve
+           swift package update
+
   build_debug:
     <<: *default_docker
     steps:
@@ -40,8 +50,13 @@ workflows:
   version: 2
   resolve_build_test:
     jobs:
+      - resolve
       - build_debug:
+          requires:
+            - resolve
       - build_release:
+          requires:
+            - resolve
       - test:
           requires:
             - build_debug

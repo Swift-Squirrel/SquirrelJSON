@@ -101,8 +101,8 @@ public struct JSONCoding {
         func getMirrorChildren(superClass: Mirror?, children: Mirror.Children) -> [String: Any]? {
             var res: [String: Any] = [:]
             if let supClass = superClass {
-                let children = supClass.children
-                if let sres = getMirrorChildren(superClass: supClass.superclassMirror, children: children) {
+                if let sres = getMirrorChildren(superClass: supClass.superclassMirror,
+                                                children: supClass.children) {
                     for (key, value) in sres {
                         res[key] = value
                     }
