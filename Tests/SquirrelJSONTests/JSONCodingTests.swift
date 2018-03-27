@@ -11,7 +11,7 @@ import XCTest
 
 
 class JSONCodingTests: XCTestCase {
-    struct User {
+    struct User: Codable {
         let id: UInt
         var name: String
         var age: UInt
@@ -88,13 +88,56 @@ class JSONCodingTests: XCTestCase {
 
         XCTAssert(jsonData.count == 1)
         XCTAssertNotNil(jsonData["users"])
+    }
 
-        // TODO beter encode
+    func testCodable() {
+        let users = [
+            User(id: 1, name: "Tom", age: 10),
+            User(id: 2, name: "Ben", age: 12),
+            User(id: 3, name: "Jenny", age: 9)
+        ]
+        let usersJSON: JSON
+        do {
+            usersJSON = try JSON(users)
+        } catch let error {
+            XCTFail("\(error)")
+            return
+        }
+
+        XCTAssertTrue(usersJSON.isArray)
+        XCTAssertEqual(usersJSON.arrayValue.count, 3)
+
+        let usersFromJSON: [User]
+        do {
+            usersFromJSON = try usersJSON.decode()
+        } catch let error {
+            XCTFail("\(error)")
+            return
+        }
+        XCTAssertEqual(usersFromJSON.count, 3)
+
+        XCTAssertEqual(usersFromJSON, users)
     }
 
     static var allTests = [
         ("testEncodeJSON", testEncodeJSON),
         ("testJSONValidity", testJSONValidity),
-        ("testObjArr", testObjArr)
+        ("testObjArr", testObjArr),
+        ("testCodable", testCodable)
     ]
+}
+
+extension JSONCodingTests.User: Equatable {
+    static func ==(lhs: JSONCodingTests.User, rhs: JSONCodingTests.User) -> Bool {
+        guard lhs.age == rhs.age else {
+            return false
+        }
+        guard lhs.id == rhs.id else {
+            return false
+        }
+        guard lhs.name == rhs.name else {
+            return false
+        }
+        return true
+    }
 }
