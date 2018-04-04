@@ -479,7 +479,7 @@ public extension JSON {
     var serialize: Any? {
         switch type {
         case .array(let array):
-            return array.flatMap({ $0.serialize })
+            return array.compactMap({ $0.serialize })
         case .bool(let bool):
             return bool
         case .date(let date):

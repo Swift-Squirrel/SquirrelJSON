@@ -130,7 +130,7 @@ public struct JSONCoding {
         case let v as Date:
             return v.timeIntervalSince1970.description
         case let arr as [Any]:
-            return arr.flatMap { encode(object: $0) }
+            return arr.compactMap { encode(object: $0) }
         case let dic as [String: Any]:
             return dic.mapValues { return encode(object: $0) }
         default:
