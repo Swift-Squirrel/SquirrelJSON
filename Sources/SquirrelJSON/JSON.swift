@@ -391,7 +391,6 @@ extension JSON {
     }
 }
 
-
 // MARK: - Codable
 public extension JSON {
     /// Constructs from encodable object
@@ -427,7 +426,6 @@ public extension JSON {
         let encoder = JSONEncoder()
         return try? encoder.encode(self)
     }
-
 }
 
 // MARK: - Additive functions
@@ -479,7 +477,11 @@ public extension JSON {
     var serialize: Any? {
         switch type {
         case .array(let array):
-            return array.compactMap({ $0.serialize })
+            #if swift(>=4.1)
+            return array.compactMap { $0.serialize }
+            #else
+            return array.flatMap { $0.serialize }
+            #endif
         case .bool(let bool):
             return bool
         case .date(let date):

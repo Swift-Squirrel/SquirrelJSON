@@ -93,6 +93,8 @@ public struct JSONCoding {
         }
     }
 
+    // swiftlint:disable function_body_length
+
     /// Encode object to json representation
     ///
     /// - Parameter object: object to encode
@@ -130,7 +132,11 @@ public struct JSONCoding {
         case let v as Date:
             return v.timeIntervalSince1970.description
         case let arr as [Any]:
+            #if swift(>=4.1)
             return arr.compactMap { encode(object: $0) }
+            #else
+            return arr.flatMap { encode(object: $0) }
+            #endif
         case let dic as [String: Any]:
             return dic.mapValues { return encode(object: $0) }
         default:

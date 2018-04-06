@@ -6,7 +6,7 @@
 //
 
 // MARK: String
-extension JSON : ExpressibleByStringLiteral {
+extension JSON: ExpressibleByStringLiteral {
 
     /// Construct from string literal
     ///
@@ -29,7 +29,6 @@ extension JSON : ExpressibleByStringLiteral {
         self.init(value)
     }
 }
-
 
 // MARK: - Dictionary
 extension JSON: ExpressibleByDictionaryLiteral {
